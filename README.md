@@ -60,6 +60,10 @@ The below script will clean the data in **input_files**, Also generate final fil
 
 `python3 process.py`
 
+Using Spark Submit
+
+`spark-submit --packages com.crealytics:spark-excel_2.12:0.13.4 --master local[2] --py-files constants.py process.py`
+
 ### Running Tests
 
 Run the test cases
