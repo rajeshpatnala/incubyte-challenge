@@ -1,4 +1,3 @@
-
 """
 Script to automate the testing for process script.
 This script uses test files and generates end results,
@@ -17,17 +16,12 @@ import os
 from pyspark.sql.types import *
 from test_base_class import PysparkTestBaseClass
 
-from constants import (TEST_RAW_DATASETS_DIR,
-                       TEST_DATASETS_DIR,
-                       TEST_EXPECTED_DATASETS_DIR,
-                       TEST_DATASET_CONFIG)
+from constants import (TEST_RAW_DATASETS_DIR, TEST_DATASETS_DIR,
+                       TEST_EXPECTED_DATASETS_DIR, TEST_DATASET_CONFIG)
 
 from process import (read_input_file, transform_data,
-                     generate_vaccination_count,
-                     generate_vaccinated_percentage,
+                     generate_vaccination_count, generate_vaccinated_percentage,
                      generate_vaccinated_contribution)
-
-
 
 
 class PysparkTest(PysparkTestBaseClass):
@@ -36,6 +30,7 @@ class PysparkTest(PysparkTestBaseClass):
     It will generate end results for given test input files
     and comapre it with expected results.
     """
+
     def test_read_input_file(self):
         """
         This method tests results generated using read_input_file function

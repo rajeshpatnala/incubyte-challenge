@@ -1,3 +1,7 @@
+"""
+This Modules has the required constant values used in process.py,
+process_test.py
+"""
 INPUT_DATASETS_DIR = "input_files"
 
 TEST_DATASETS_DIR = "test_files/input_data/"

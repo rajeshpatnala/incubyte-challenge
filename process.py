@@ -18,6 +18,9 @@ Dependency Input files:
 
 Dependency Python files:
 1. constansts.py
+
+This Module download the required dependency jar files for following package
+com.crealytics:spark-excel_2.12:0.13.4. This jar is used to read microsoft excel files.
 """
 
 import os
@@ -142,6 +145,7 @@ def _get_percentage_vaccinated(population_mapping: dict):
     Args:
         population_mapping (dict): Population details of all countries.
     """
+
     def _calculate_percentage(country: str, vaccine_count: int) -> float:
         # Fetching country's total population
         total_population = population_mapping[country]
@@ -178,6 +182,7 @@ def _get_percentage_contribution(world_population: int):
     Args:
         world_population (dict): World's Population
     """
+
     def _calculate_percentage(vaccine_count: int) -> float:
         percentage = float("{:.2f}".format(
             (vaccine_count / world_population) * 100))
@@ -200,10 +205,8 @@ def generate_vaccinated_contribution(data_df: DataFrame) -> DataFrame:
     grouped_df = data_df.groupBy(["country"]).count()
 
     # Calculating world's population.
-    total_population = grouped_df.agg({
-        'count': 'sum'
-    }).collect()[0][0]
-    
+    total_population = grouped_df.agg({'count': 'sum'}).collect()[0][0]
+
     res_df = grouped_df.withColumn(
         "vaccinated_contribution",
         _get_percentage_contribution(total_population)("count"))
