@@ -1,0 +1,10 @@
+country,vaccination_type,count
+USA,EFG,1
+USA,ABC,2
+AUS,ABC,1
+IND,ABC,2
+USA,KBC,1
+AUS,XYZ,1
+IND,XYZ,1
+USA,XYZ,1
+AUS,LMN,1
