@@ -14,7 +14,7 @@ This dataset has vaccination details for different Nationals India, Australia an
 The data in csv, xlsx formats are listed in input_files folder.
 
 
-#### Output
+### Output
 These are the attributes that we will use
 | Attribute      					| Description                                                 				|
 |-------------------------------------------------------|---------------------------------------------------------------------------------------|
@@ -23,19 +23,19 @@ These are the attributes that we will use
 
 
 
-#### Cleaned Data
+### Cleaned Data
 Cleaned data will be inside [output_files] as a CSV file inside with the following columns.
 
-1. output_files/vaccination_count [subdirectory] 
+1. [output_files/vaccination_count](output_files/vaccination_count) [subdirectory] 
     - country
     - vaccination_type
     - count
 
-2. output_files/vaccination_percentage [subdirectory] 
+2. [output_files/vaccination_percentage](output_files/vaccination_percentage) [subdirectory] 
     - country
     - vaccinated_percentage
 
-2. output_files/vaccination_contribution [subdirectory] 
+3. [output_files/vaccination_contribution](output_files/vaccination_contribution) [subdirectory] 
     - country
     - vaccination_contribution
 
