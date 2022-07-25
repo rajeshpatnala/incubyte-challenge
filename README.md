@@ -39,11 +39,19 @@ Cleaned data will be inside [output_files] as a CSV file inside with the followi
     - country
     - vaccination_contribution
 
-### Running Tests
+### Setting up Python Environment
 
-Run the test cases
+The below command helps to create python environment.
 
-`python3 -m unittest process_test.py`
+`virtualenv spark_env`
+
+Activate spark_env
+
+`source spark_env/bin/activate`
+
+Install Required Modules
+
+`pip3 install -r requirements.txt`
 
 
 ### Import Procedure
@@ -51,3 +59,11 @@ Run the test cases
 The below script will clean the data in **input_files**, Also generate final files.
 
 `python3 process.py`
+
+### Running Tests
+
+Run the test cases
+
+`python3 -m unittest process_test.py`
+
+
