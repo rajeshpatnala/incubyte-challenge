@@ -1,7 +1,7 @@
-country,vaccination_type
-IND,XYZ
-IND,ABC
-IND,ABC
-USA,ABC
-USA,ABC
-AUS,KBC
+country,vaccination_type,vaccination_date
+IND,XYZ,2022-01-01
+IND,ABC,2022-03-05
+IND,ABC,2022-02-20
+USA,ABC,2021-12-28
+USA,ABC,2021-12-28
+AUS,KBC,2022-11-05

@@ -25,7 +25,7 @@ com.crealytics:spark-excel_2.12:0.13.4. This jar is used to read microsoft excel
 
 import os
 from pyspark.sql import SparkSession, DataFrame
-from pyspark.sql.functions import lit, udf
+from pyspark.sql.functions import lit, udf, to_date, when, col,length
 from pyspark.sql.types import *
 from constants import INPUT_DATASETS_DIR, COUNTRY_POPULATION
 
@@ -55,6 +55,7 @@ def _init_spark() -> SparkSession:
     spark = SparkSession \
                 .builder \
                 .config("spark.jars.packages", "com.crealytics:spark-excel_2.12:0.13.4") \
+                .config("spark.sql.legacy.timeParserPolicy", "Legacy") \
                 .config("spark.sql.shuffle.partitions", "4") \
                 .master("local[2]") \
                 .appName("spark-session") \
@@ -79,16 +80,44 @@ def read_input_file(spark: SparkSession, input_file: str) -> DataFrame:
     data_df = spark.createDataFrame([], StructType([]))
     if file_ext == ".csv":
         data_df = spark.read \
-                       .option("inferSchema", "true") \
+                       .option("inferSchema", "False") \
                        .option("header", "true") \
                        .csv(input_file)
     elif file_ext == ".xlsx":
         data_df = spark.read \
                        .format("com.crealytics.spark.excel") \
                        .option("header", "true") \
-                       .option("inferSchema", "true") \
                        .load(input_file)
     return data_df
+
+
+def _change_to_date(date: str):
+    date = date[:2] + '-' + date[2:4] + '-' + date[4:]
+    return date
+
+_change_to_date_udf = udf(_change_to_date)
+
+def transform_date_column(raw_df: DataFrame) -> DataFrame:
+    """
+    Converts the date string to date.
+    Supported Formats:
+        yyyy-mm-dd
+        mm/dd/yyyy
+        mmddyyyy
+
+    Args:
+        raw_df (DataFrame): Input Raw DataFrame
+
+    Returns:
+        DataFrame: DataFrame with converted date columns.
+    """
+    cleaned_df = raw_df.withColumn("vaccination_date", \
+                                     when(to_date(col("vaccination_date"), "y-M-d").isNotNull(), to_date(col("vaccination_date"), "y-M-d")) \
+                                    .when(to_date(col("vaccination_date"), "M/d/y").isNotNull(), to_date(col("vaccination_date"), "M/d/y")) \
+                                    .when(col("vaccination_date").rlike(r"\d{8}"), to_date(_change_to_date_udf(col("vaccination_date")), "M-d-y")) \
+                                    .otherwise(col("vaccination_date"))
+                                  )
+    return cleaned_df
 
 
 def transform_data(raw_df: DataFrame, final_df: DataFrame,
@@ -110,16 +139,15 @@ def transform_data(raw_df: DataFrame, final_df: DataFrame,
     # Renaming below column names.
     # VaccinationType -> vaccination_type
     # Vaccine Type -> vaccination_type
-    for old_header, new_header in zip(["VaccinationType", "Vaccine Type"],
-                                      ["vaccination_type", "vaccination_type"]):
+    for old_header, new_header in zip(["VaccinationType", "Vaccine Type", "Date of Vaccination", "VaccinationDate"],
+                                      ["vaccination_type", "vaccination_type", "vaccination_date", "vaccination_date"]):
         if old_header in raw_df_headers:
             raw_df = raw_df.withColumnRenamed(old_header, new_header)
 
     # Creating a country column.
     cleaned_df = raw_df.withColumn("country", lit(country))
-    cleaned_df = cleaned_df.select(["country", "vaccination_type"])
-
-    # Appending cleaned_df to final_df.
+    cleaned_df = cleaned_df.select(["country", "vaccination_type", "vaccination_date"])
+    
     final_df = final_df.unionByName(cleaned_df)
     return final_df
 
@@ -154,7 +182,7 @@ def _get_percentage_vaccinated(population_mapping: dict):
         return percentage
 
     return udf(_calculate_percentage, DoubleType())
-
+# 98.7654 #98.77
 
 def generate_vaccinated_percentage(data_df: DataFrame) -> DataFrame:
     """
@@ -221,11 +249,12 @@ def init_process():
     """
     list_of_input_files = _get_input_files_info(INPUT_DATASETS_DIR)
     spark = _init_spark()
-
+    
     # Creating Final Schema for tranformed DataFrame.
     final_df_schema = StructType() \
                         .add(StructField("country", StringType(), True)) \
-                        .add(StructField("vaccination_type", StringType(), True))
+                        .add(StructField("vaccination_type", StringType(), True)) \
+                        .add(StructField("vaccination_date", StringType(), True))
 
     # Creating Empty DataFrame with schema.
     final_df = spark.createDataFrame([], schema=final_df_schema)
@@ -234,6 +263,8 @@ def init_process():
         country = os.path.splitext(os.path.basename(file))[0]
         raw_df = read_input_file(spark, file)
         final_df = transform_data(raw_df, final_df, country)
+
+    final_df = transform_date_column(final_df)
 
     # Generating vaccination count for each country
     # and writing the output to local disk.

@@ -21,7 +21,8 @@ from constants import (TEST_RAW_DATASETS_DIR, TEST_DATASETS_DIR,
 
 from process import (read_input_file, transform_data,
                      generate_vaccination_count, generate_vaccinated_percentage,
-                     generate_vaccinated_contribution)
+                     generate_vaccinated_contribution,
+                     transform_date_column)
 
 
 class PysparkTest(PysparkTestBaseClass):
@@ -69,10 +70,11 @@ class PysparkTest(PysparkTestBaseClass):
         raw_df = self.spark.read.option("header", True).csv(raw_file)
         schema = StructType() \
                         .add(StructField("country", StringType(), True)) \
-                        .add(StructField("vaccination_type", StringType(), True))
+                        .add(StructField("vaccination_type", StringType(), True)) \
+                        .add(StructField("vaccination_date", StringType(), True))
         actual_df = self.spark.createDataFrame([], schema=schema)
         actual_df = transform_data(raw_df, actual_df, "IND")
-
+        actual_df = transform_date_column(actual_df)
         self.assertEqual(sorted(expected_df.collect()),
                          sorted(actual_df.collect()))
 

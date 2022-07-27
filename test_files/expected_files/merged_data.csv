@@ -1,4 +1,4 @@
-country,vaccination_type
-IND,XYZ
-IND,ABC
-IND,ABC
+country,vaccination_type,vaccination_date
+IND,XYZ,2022-01-01
+IND,ABC,2022-01-05
+IND,ABC,2021-10-11
